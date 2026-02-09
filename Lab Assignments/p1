@@ -1,0 +1,50 @@
+import heapq
+
+def manhattan_distance(point1, point2):
+    return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
+
+
+def astar_search(maze,start,goal,n,m):
+    open_list=[]
+    h_score=manhattan_distance(start,goal)
+    heapq.heappush(open_list,(h_score,0,start,""))
+    visited=set()
+    directions=[
+        (-1,0,'U'),(1,0,'D'),(0,-1,'L'),(0,1,'R')]
+    
+    while open_list:
+        f_score,g_score,current,path=heapq.heappop(open_list)
+        if current==goal:
+            return g_score,path
+        if current in visited:
+            continue
+        visited.add(current)
+        for dr,dc,action in directions:
+            new_row=current[0]+dr
+            new_col=current[1]+dc
+            neighbor=(new_row,new_col)
+            if(0<=new_row<n and 0<=new_col<m and maze[new_row][new_col]=='0' and neighbor not in visited):
+                new_g_score=g_score+1
+                h_score=manhattan_distance(neighbor,goal)
+                new_f_score=new_g_score+h_score
+                heapq.heappush(open_list,(new_f_score,new_g_score,neighbor,path+action))
+                
+    return -1
+
+
+def main():
+    n,m= map(int,input().split())
+    start_row,start_col= map(int,input().split())
+    goal_row,goal_col= map(int,input().split())
+    maze=[]
+    for _ in range(n):
+        maze.append(input().strip())
+        
+    start = (start_row,start_col)
+    goal = (goal_row,goal_col)
+    cost,path=astar_search(maze,start,goal,n,m)
+    if cost==-1:
+        print("No path found")
+    else:
+        print(cost)
+        print(path)

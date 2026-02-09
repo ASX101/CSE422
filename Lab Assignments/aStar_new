@@ -1,0 +1,74 @@
+# Read the file and store the data
+def read_file(input_file):
+    graph = {}
+    heuristic = {}
+
+    file = open(input_file, "r")
+
+    for line in file:
+        data = line.split()
+        city = data[0]
+        h_value = int(data[1])
+
+        heuristic[city] = h_value
+        graph[city] = []
+
+        i = 2
+        while i < len(data):
+            neighbor = data[i]
+            distance = int(data[i + 1])
+            graph[city].append((neighbor, distance))
+            i += 2
+
+    file.close()
+    return graph, heuristic
+
+
+# A* Search (simple version)
+def a_star(graph, heuristic, start, goal):
+    open_list = [(start, 0)]
+    came_from = {}
+    cost_so_far = {start: 0}
+
+    while open_list:
+        # pick node with smallest (cost + heuristic)
+        current = min(open_list, key=lambda x: x[1] + heuristic[x[0]])
+        open_list.remove(current)
+        current_city = current[0]
+
+        if current_city == goal:
+            break
+
+        for neighbor, distance in graph[current_city]:
+            new_cost = cost_so_far[current_city] + distance
+
+            if neighbor not in cost_so_far or new_cost < cost_so_far[neighbor]:
+                cost_so_far[neighbor] = new_cost
+                open_list.append((neighbor, new_cost))
+                came_from[neighbor] = current_city
+
+    # build path
+    path = []
+    city = goal
+    while city != start:
+        path.append(city)
+        city = came_from[city]
+    path.append(start)
+    path.reverse()
+
+    return path, cost_so_far[goal]
+
+
+# MAIN PROGRAM
+graph, heuristic = read_file("input_file.txt")
+
+start = input("Enter starting city: ")
+goal = input("Enter destination city: ")
+
+path, total_distance = a_star(graph, heuristic, start, goal)
+
+print("\nPath followed:")
+for city in path:
+    print(city, end=" -> ")
+
+print("\n\nTotal distance:", total_distance)

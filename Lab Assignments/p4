@@ -1,0 +1,62 @@
+import math
+
+def calcultate_utility(gene, target, weights):
+    score = 0
+    n = max(len(gene), len(target))
+    for i in range(n):
+        w = weights[i] if i < len(weights) else 1
+        g = ord(gene[i]) if i < len(gene) else 0
+        t = ord(target[i]) if i < len(target) else 0
+        score -= w * abs(g - t)
+    return score
+
+def minimax(pool, gene, is_max, alpha, beta, target, weights):
+    if not pool:
+        return calcultate_utility(gene, target, weights), gene
+    
+    if is_max:
+        best_score = -math.inf
+        best_gene = ""
+        for ch in pool:
+            new__pool = pool.copy()
+            new__pool.remove(ch)
+            score, final_gene = minimax(
+                new__pool,
+                gene + ch,
+                False,
+                alpha,
+                beta,
+                target,
+                weights
+            )
+            
+            if score> best_score:
+                best_score = score
+                best_gene = final_gene
+            alpha = max(alpha, best_score)
+            if beta <= alpha:
+                break
+        return best_score, best_gene
+    else:
+        best_score = math.inf
+        best_gene = ""
+        for ch in pool:
+            new__pool = pool.copy()
+            new__pool.remove(ch)
+            score, final_gene = minimax(
+                new__pool,
+                gene + ch,
+                True,
+                alpha,
+                beta,
+                target,
+                weights
+            )
+
+            if score < best_score:
+                best_score = score
+                best_gene = final_gene
+            beta = min(beta, best_score)
+            if beta <= alpha:
+                break
+        return best_score, best_gene

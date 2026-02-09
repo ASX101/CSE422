@@ -1,0 +1,73 @@
+import random
+
+# -------- ALPHA BETA FUNCTION --------
+def alpha_beta(depth, index, is_max, values, alpha, beta):
+    # Terminal level
+    if depth == 3:
+        return values[index]
+
+    if is_max:
+        best = -999
+        for i in range(2):
+            val = alpha_beta(depth + 1, index * 2 + i, False, values, alpha, beta)
+            best = max(best, val)
+            alpha = max(alpha, best)
+
+            if beta <= alpha:
+                break
+        return best
+    else:
+        best = 999
+        for i in range(2):
+            val = alpha_beta(depth + 1, index * 2 + i, True, values, alpha, beta)
+            best = min(best, val)
+            beta = min(beta, best)
+
+            if beta <= alpha:
+                break
+        return best
+
+
+# -------- MAIN PROGRAM --------
+student_id = input("Enter your student ID: ")
+
+# replace 0 with 8
+digits = [int(d) if d != '0' else 8 for d in student_id]
+
+min_point = min(digits)
+max_point = max(digits)
+
+# generate 8 random points
+points = [random.randint(min_point, max_point) for _ in range(8)]
+
+total_points_to_win = sum(digits) % 100
+
+print("\nGenerated 8 random points between the minimum and maximum point limits:", points)
+print("Total points to win:", total_points_to_win)
+
+# TASK 1
+achieved_point = alpha_beta(0, 0, True, points, -999, 999)
+
+print("Achieved point by applying alpha-beta pruning =", achieved_point)
+
+if achieved_point >= total_points_to_win:
+    print("The winner is Optimus Prime")
+else:
+    print("The winner is Megatron")
+
+# -------- TASK 2 --------
+shuffle_results = []
+wins = 0
+
+for _ in range(len(points)):
+    random.shuffle(points)
+    result = alpha_beta(0, 0, True, points, -999, 999)
+    shuffle_results.append(result)
+
+    if result >= total_points_to_win:
+        wins += 1
+
+print("\nAfter the shuffle:")
+print("List of all points values from each shuffles:", shuffle_results)
+print("The maximum value of all shuffles:", max(shuffle_results))
+print("Won", wins, "times out of", len(points), "number of shuffles")
